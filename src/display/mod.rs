@@ -9,7 +9,7 @@ mod epaper {
     use std::time::Duration;
 
     use embedded_graphics::{
-        mono_font::{ascii::FONT_6X10, ascii::FONT_9X18_BOLD, MonoTextStyle},
+        mono_font::{ascii::FONT_10X20, ascii::FONT_9X15_BOLD, MonoTextStyle},
         prelude::*,
         primitives::{Line, PrimitiveStyle},
         text::{Baseline, Text},
@@ -100,36 +100,39 @@ mod epaper {
     fn render(display: &mut Display1in54, stats: &BrokerStats) {
         display.clear(Color::White).ok();
 
-        let bold   = MonoTextStyle::new(&FONT_9X18_BOLD, Color::Black);
-        let normal = MonoTextStyle::new(&FONT_6X10,      Color::Black);
-        let stroke = PrimitiveStyle::with_stroke(Color::Black, 1);
+        let title  = MonoTextStyle::new(&FONT_10X20,    Color::Black);
+        let body   = MonoTextStyle::new(&FONT_9X15_BOLD, Color::Black);
+        let stroke = PrimitiveStyle::with_stroke(Color::Black, 2);
 
-        Text::with_baseline("MQTT Broker", Point::new(12, 6), bold, Baseline::Top)
+        // Title — centred
+        Text::with_baseline("MQTT Broker", Point::new(15, 4), title, Baseline::Top)
             .draw(display).ok();
 
-        Line::new(Point::new(0, 30), Point::new(200, 30))
+        Line::new(Point::new(0, 28), Point::new(200, 28))
             .into_styled(stroke)
             .draw(display).ok();
 
         let ip_str = local_ip_address::local_ip()
-            .map(|ip| format!("{}:1883", ip))
-            .unwrap_or_else(|_| "?.?.?.?:1883".into());
-
-        Text::with_baseline(&format!("IP  {ip_str}"),           Point::new(4,  38), normal, Baseline::Top).draw(display).ok();
+            .map(|ip| ip.to_string())
+            .unwrap_or_else(|_| "?.?.?.?".into());
 
         let clients  = stats.get_clients();
         let messages = stats.get_messages();
         let secs     = stats.uptime_secs();
         let (h, m, s) = (secs / 3600, (secs % 3600) / 60, secs % 60);
 
-        Text::with_baseline(&format!("CLI {clients}"),          Point::new(4, 56), normal, Baseline::Top).draw(display).ok();
-        Text::with_baseline(&format!("MSG {messages}"),         Point::new(4, 70), normal, Baseline::Top).draw(display).ok();
-        Text::with_baseline(&format!("UP  {h:02}:{m:02}:{s:02}"), Point::new(4, 84), normal, Baseline::Top).draw(display).ok();
+        Text::with_baseline(&format!("IP {ip_str}"),            Point::new(4,  36), body, Baseline::Top).draw(display).ok();
+        Text::with_baseline(&format!("Port    1883"),           Point::new(4,  58), body, Baseline::Top).draw(display).ok();
+        Text::with_baseline(&format!("Clients {clients}"),      Point::new(4,  80), body, Baseline::Top).draw(display).ok();
+        Text::with_baseline(&format!("Msgs    {messages}"),     Point::new(4, 102), body, Baseline::Top).draw(display).ok();
+        Text::with_baseline(&format!("Up {h:02}:{m:02}:{s:02}"), Point::new(4, 124), body, Baseline::Top).draw(display).ok();
 
-        Line::new(Point::new(0, 100), Point::new(200, 100))
+        Line::new(Point::new(0, 148), Point::new(200, 148))
             .into_styled(stroke)
             .draw(display).ok();
-        Text::with_baseline("STATUS  RUNNING",                  Point::new(4, 106), normal, Baseline::Top).draw(display).ok();
+
+        Text::with_baseline("RUNNING", Point::new(50, 156), title, Baseline::Top)
+            .draw(display).ok();
     }
 }
 
