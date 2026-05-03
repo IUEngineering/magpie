@@ -14,7 +14,7 @@ async fn main() -> Result<()> {
         .with_env_filter(
             EnvFilter::from_default_env()
                 .add_directive("mqtt_broker_rust=info".parse()?)
-                .add_directive("rumqttd=warn".parse()?),
+                .add_directive("rumqttd=off".parse()?),
         )
         .init();
 
