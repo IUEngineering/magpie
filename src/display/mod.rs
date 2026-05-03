@@ -48,14 +48,18 @@ mod epaper {
     // ── Main blocking loop ────────────────────────────────────────────────────
 
     pub fn run_blocking(stats: Arc<BrokerStats>) {
+        info!("Display thread started");
+
         let gpio = match Gpio::new() {
             Ok(g)  => g,
             Err(e) => { error!("GPIO init failed: {e}"); return; }
         };
+        info!("GPIO ok");
 
         let dc   = match gpio.get(DC_PIN)   { Ok(p) => p.into_output(), Err(e) => { error!("DC pin {DC_PIN}: {e}");    return; } };
         let rst  = match gpio.get(RST_PIN)  { Ok(p) => p.into_output(), Err(e) => { error!("RST pin {RST_PIN}: {e}");  return; } };
         let busy = match gpio.get(BUSY_PIN) { Ok(p) => p.into_input(),  Err(e) => { error!("BUSY pin {BUSY_PIN}: {e}"); return; } };
+        info!("GPIO pins ok (DC={DC_PIN}, RST={RST_PIN}, BUSY={BUSY_PIN})");
 
         // SPI0, CE0 (hardware CS on GPIO 8), 4 MHz, Mode 0.
         // Wrap with SimpleHalSpiDevice to satisfy the SpiDevice trait bound.
@@ -63,9 +67,12 @@ mod epaper {
             Ok(s)  => s,
             Err(e) => { error!("SPI init failed: {e}"); return; }
         };
+        info!("SPI ok");
+
         let mut spi = SimpleHalSpiDevice::new(raw_spi);
         let mut delay = Delay;
 
+        info!("Initializing EPD (may take a few seconds)...");
         let mut epd = match Epd1in54::new(&mut spi, busy, dc, rst, &mut delay, None) {
             Ok(e)  => e,
             Err(e) => { error!("EPD init failed: {e:?}"); return; }
