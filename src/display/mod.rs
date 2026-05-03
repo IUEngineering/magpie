@@ -79,21 +79,27 @@ mod epaper {
         };
 
         let mut display = Display1in54::default();
-        info!("E-paper display ready — refreshing every {REFRESH_SECS} s");
+
+        // Initial full refresh — clears the display with maximum contrast
+        render(&mut display, &stats);
+        if let Err(e) = epd.update_and_display_frame(&mut spi, display.buffer(), &mut delay) {
+            warn!("Initial frame error: {e:?}");
+        }
+
+        // Switch to quick (partial) refresh for all subsequent updates (~0.5 s per refresh)
+        if let Err(e) = epd.set_lut(&mut spi, &mut delay, Some(RefreshLut::Quick)) {
+            warn!("Failed to set quick LUT: {e:?}");
+        }
+
+        info!("E-paper display ready — refreshing every {REFRESH_SECS} s (quick mode)");
 
         loop {
+            std::thread::sleep(Duration::from_secs(REFRESH_SECS));
             render(&mut display, &stats);
 
-            match epd.update_frame(&mut spi, display.buffer(), &mut delay) {
-                Ok(_)  => info!("Frame sent to display"),
-                Err(e) => { warn!("Frame update error: {e:?}"); continue; }
+            if let Err(e) = epd.update_and_display_frame(&mut spi, display.buffer(), &mut delay) {
+                warn!("Frame error: {e:?}");
             }
-            match epd.display_frame(&mut spi, &mut delay) {
-                Ok(_)  => info!("Display refreshed"),
-                Err(e) => warn!("Display frame error: {e:?}"),
-            }
-
-            std::thread::sleep(Duration::from_secs(REFRESH_SECS));
         }
     }
 
