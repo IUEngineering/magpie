@@ -51,7 +51,7 @@ local-ip-address = "0.6"
 #
 # If you have the V2 model use the `epd1in54_v2` module (default below).
 # For the original V1 switch to `epd1in54`.
-epd-waveshare    = { version = "0.5",  optional = true }
+epd-waveshare    = { version = "0.6",  optional = true }
 rppal            = { version = "0.17", features = ["hal"], optional = true }
-embedded-hal     = { version = "0.2",  optional = true }
-embedded-graphics = { version = "0.7", optional = true }
+embedded-hal     = { version = "1.0",  optional = true }
+embedded-graphics = { version = "0.8", optional = true }
