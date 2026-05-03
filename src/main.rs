@@ -32,5 +32,5 @@ async fn main() -> Result<()> {
 
     signal::ctrl_c().await?;
     info!("Shutting down");
-    Ok(())
+    std::process::exit(0);
 }
