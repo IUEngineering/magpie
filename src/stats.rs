@@ -42,7 +42,7 @@ pub async fn run_monitor(stats: Arc<BrokerStats>) {
     // Give the broker a moment to finish binding its socket.
     sleep(Duration::from_secs(2)).await;
 
-    let mut opts = MqttOptions::new("internal-monitor", "127.0.0.1", 1883);
+    let mut opts = MqttOptions::new("internalmonitor", "127.0.0.1", 1883);
     opts.set_keep_alive(Duration::from_secs(30));
 
     let (client, mut eventloop) = AsyncClient::new(opts, 256);
