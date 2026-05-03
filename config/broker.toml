@@ -1,0 +1,28 @@
+id = 0
+
+[router]
+id                       = 0
+dir                      = "/tmp/rumqttd"
+max_connections          = 10010
+max_outgoing_packet_count = 200
+max_segment_size         = 104857600   # 100 MB per segment
+max_segment_count        = 10
+initialized_filters      = []
+
+# MQTT 3.1.1 listener
+[v4.1]
+name                     = "v4-1"
+listen                   = "0.0.0.0:1883"
+next_connection_delay_ms = 1
+
+[v4.1.connections]
+connection_timeout_ms = 60000
+max_clientid_len      = 256
+max_payload_size      = 20480   # 20 KB
+max_inflight_count    = 200
+max_inflight_size     = 1024
+
+# Built-in web console at http://<pi-ip>:3030
+[console]
+listen = "0.0.0.0:3030"
+tenant = ""

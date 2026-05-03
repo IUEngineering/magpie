@@ -1,0 +1,10 @@
+# Cross-compilation for Raspberry Pi 5 (aarch64)
+# Install the toolchain once:
+#   rustup target add aarch64-unknown-linux-gnu
+#   sudo apt install gcc-aarch64-linux-gnu   (Debian/Ubuntu host)
+#
+# Then build with:
+#   cargo build --release --target aarch64-unknown-linux-gnu --features rpi-display
+
+[target.aarch64-unknown-linux-gnu]
+linker = "aarch64-linux-gnu-gcc"

@@ -1,0 +1,57 @@
+[package]
+name = "mqtt_broker_rust"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "mqtt_broker"
+path = "src/main.rs"
+
+# Build without display (development): cargo build
+# Build with display (Raspberry Pi):   cargo build --features rpi-display
+[features]
+default = []
+rpi-display = [
+    "dep:epd-waveshare",
+    "dep:rppal",
+    "dep:embedded-hal",
+    "dep:embedded-graphics",
+]
+
+[dependencies]
+# MQTT broker and monitoring client
+rumqttd  = "0.19"
+rumqttc  = "0.24"
+
+# Async runtime
+tokio = { version = "1", features = ["full"] }
+
+# Config / serialization
+serde = { version = "1", features = ["derive"] }
+toml  = "0.8"
+
+# Logging
+tracing            = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Error handling
+anyhow = "1"
+
+# Local IP detection (for display)
+local-ip-address = "0.6"
+
+# ── E-paper display (Waveshare 1.54") ──────────────────────────────────────
+# Requires SPI enabled on the Pi: add `dtparam=spi=on` to /boot/firmware/config.txt
+#
+# Wiring (BCM pin numbers):
+#   VCC  → 3.3 V (pin 1)      GND  → GND (pin 6)
+#   DIN  → GPIO 10 / MOSI     CLK  → GPIO 11 / SCLK
+#   CS   → GPIO  8 / CE0      DC   → GPIO 25 (pin 22)
+#   RST  → GPIO 17 (pin 11)   BUSY → GPIO 24 (pin 18)
+#
+# If you have the V2 model use the `epd1in54_v2` module (default below).
+# For the original V1 switch to `epd1in54`.
+epd-waveshare    = { version = "0.5",  optional = true }
+rppal            = { version = "0.17", features = ["hal"], optional = true }
+embedded-hal     = { version = "0.2",  optional = true }
+embedded-graphics = { version = "0.7", optional = true }
