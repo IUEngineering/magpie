@@ -33,7 +33,7 @@ mod epaper {
     const BUSY_PIN: u8 = 24;
 
     // Seconds between full-panel refreshes (e-paper full refresh takes ~2 s)
-    const REFRESH_SECS: u64 = 30;
+    const REFRESH_SECS: u64 = 5;
 
     // ── embedded-hal 1.0 delay backed by thread::sleep ──────────────────────
 
@@ -84,10 +84,13 @@ mod epaper {
         loop {
             render(&mut display, &stats);
 
-            if let Err(e) = epd.update_frame(&mut spi, display.buffer(), &mut delay) {
-                warn!("Frame update error: {e:?}");
-            } else if let Err(e) = epd.display_frame(&mut spi, &mut delay) {
-                warn!("Display frame error: {e:?}");
+            match epd.update_frame(&mut spi, display.buffer(), &mut delay) {
+                Ok(_)  => info!("Frame sent to display"),
+                Err(e) => { warn!("Frame update error: {e:?}"); continue; }
+            }
+            match epd.display_frame(&mut spi, &mut delay) {
+                Ok(_)  => info!("Display refreshed"),
+                Err(e) => warn!("Display frame error: {e:?}"),
             }
 
             std::thread::sleep(Duration::from_secs(REFRESH_SECS));
